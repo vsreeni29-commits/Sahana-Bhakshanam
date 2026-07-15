@@ -1,0 +1,65 @@
+name: Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "android-app/**"
+      - ".github/workflows/android-apk.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      WEB_APP_URL: ${{ vars.WEB_APP_URL || 'https://namma-veetu-samayal.cheenu.chatgpt.site/' }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Use Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Use Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build installable APK
+        working-directory: android-app
+        run: gradle --no-daemon :app:assembleDebug -PWEB_APP_URL="$WEB_APP_URL"
+
+      - name: Prepare named APK
+        run: cp android-app/app/build/outputs/apk/debug/app-debug.apk Sahana-Bhakshanam.apk
+
+      - name: Save workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sahana-Bhakshanam-APK
+          path: Sahana-Bhakshanam.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish public GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "mobile-${GITHUB_RUN_NUMBER}"
+          Sahana-Bhakshanam.apk
+          --target "$GITHUB_SHA"
+          --title "Sahana Bhakshanam Android APK"
+          --notes "Installable Android APK for the current Sahana Bhakshanam web application. This build is debug-signed for direct testing and sideload installation."
+          --latest

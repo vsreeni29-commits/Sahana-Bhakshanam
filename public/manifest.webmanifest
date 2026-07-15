@@ -1,0 +1,21 @@
+{
+  "name": "Sahana Bhakshanam",
+  "short_name": "Sahana",
+  "description": "Pure vegetarian Tamil Brahmin Iyer food, cooked at home in small batches.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fffaf3",
+  "theme_color": "#351b31",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
