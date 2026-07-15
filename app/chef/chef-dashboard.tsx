@@ -71,7 +71,6 @@ export function ChefDashboard() {
   const [otp, setOtp] = useState("");
   const [chefAuthError, setChefAuthError] = useState("");
   const [chefAuthLoading, setChefAuthLoading] = useState(false);
-  const [chefDemoCode, setChefDemoCode] = useState("");
   const [authenticatedChef, setAuthenticatedChef] = useState(false);
   const [orders, setOrders] = useState<DashboardOrder[]>(demoOrders);
   const [tab, setTab] = useState<DashboardTab>("overview");
@@ -129,9 +128,8 @@ export function ChefDashboard() {
     setChefAuthError("");
     try {
       const response = await fetch("/api/auth/request-otp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, purpose: "chef" }) });
-      const result = (await response.json()) as { error?: string; demoCode?: string };
+      const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Could not send chef OTP.");
-      setChefDemoCode(result.demoCode ?? "");
       setAccessStep("otp");
     } catch (error) {
       setChefAuthError(error instanceof Error ? error.message : "Could not send chef OTP.");
@@ -219,7 +217,6 @@ export function ChefDashboard() {
             <form onSubmit={verifyChefOtp} className="chef-access-form">
               <label htmlFor="chef-otp">6-digit chef code</label>
               <input className="otp-input" id="chef-otp" value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" placeholder="• • • • • •" />
-              {chefDemoCode && <div className="demo-code"><BellRing size={16} /> Prototype code: <strong>{chefDemoCode}</strong></div>}
               {chefAuthError && <p className="field-error">{chefAuthError}</p>}
               <button className="primary-cta full" type="submit" disabled={otp.length !== 6 || chefAuthLoading}>{chefAuthLoading ? "Verifying…" : "Open dashboard"} <ChevronRight size={19} /></button>
             </form>

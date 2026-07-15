@@ -20,7 +20,7 @@ Sahana Bhakshanam is a pure vegetarian Tamil Brahmin Iyer home-food business. Pu
 3. Twilio Verify sends and validates the production OTP. The app never stores a plaintext production OTP.
 4. A successful verification creates an opaque random session token. Only its SHA-256 hash is stored in D1.
 5. The browser receives an `HttpOnly`, `SameSite=Strict`, `Secure` cookie with a seven-day expiry.
-6. Chef login uses the same flow, but the normalized number must equal `CHEF_PHONE_E164`; authorization is enforced again on every admin API.
+6. Chef login uses the same flow, but the normalized number must appear in the hosted `CHEF_PHONE_E164` / `CHEF_PHONE_E164_LIST` allowlist; authorization is enforced again on every admin API and existing chef sessions are revoked when their number leaves the allowlist.
 7. A visibly labelled fixed OTP exists only in explicit prototype mode.
 
 ### Fixed meal sessions
@@ -130,7 +130,7 @@ flowchart TD
 
 1. Confirm the delivery locality, dishes, prices, chef mobile, WhatsApp Business number, and UPI ID.
 2. Set `OTP_DEMO_MODE=false`.
-3. Configure `OTP_HASH_SECRET`, the three Twilio Verify secrets, and the real allowlisted chef phone.
+3. Configure `OTP_HASH_SECRET`, the three Twilio Verify secrets, and the hosted chef phone allowlist.
 4. Connect and verify the signed WhatsApp Business relay.
 5. Make the site public only after testing consent copy, privacy policy, refund/cancellation policy, FSSAI/GST applicability, service radius, and order load limits.
 6. Add monitoring for OTP provider failures, cutoff rejection spikes, relay failures, and orders remaining in `new` state.

@@ -1,5 +1,5 @@
 import { getRawDb } from "../../../../db";
-import { hashOtp, normalizeIndianPhone } from "../../../../lib/auth";
+import { hashOtp, isChefPhone, normalizeIndianPhone } from "../../../../lib/auth";
 import { ensureDatabase } from "../../../../lib/db-bootstrap";
 import { isDemoOtpEnabled, runtimeValue } from "../../../../lib/runtime";
 import { hasTwilioVerify, sendTwilioOtp } from "../../../../lib/twilio-verify";
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const purpose = payload.purpose === "chef" ? "chef" : "consumer";
   if (!phone) return Response.json({ error: "Enter a valid Indian mobile number." }, { status: 400 });
 
-  if (purpose === "chef" && phone !== runtimeValue("CHEF_PHONE_E164")) {
+  if (purpose === "chef" && !isChefPhone(phone)) {
     return Response.json({ error: "This number is not registered as the chef account." }, { status: 403 });
   }
 
@@ -36,8 +36,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "SMS OTP is not configured yet." }, { status: 503 });
   }
 
-  const demoCode = "246810";
+  const demoCode = runtimeValue("OTP_DEMO_CODE") ?? "";
+  if (!/^\d{6}$/.test(demoCode)) {
+    return Response.json({ error: "SMS OTP is not configured yet." }, { status: 503 });
+  }
   const codeHash = await hashOtp(phone, demoCode);
   await getRawDb().prepare(`INSERT INTO otp_challenges (id, phone, purpose, provider, provider_ref, code_hash, attempts, expires_at, used_at, created_at) VALUES (?, ?, ?, 'demo', NULL, ?, 0, ?, NULL, ?)`).bind(id, phone, purpose, codeHash, expiresAt, now).run();
-  return Response.json({ ok: true, expiresIn: 300, demo: true, demoCode });
+  return Response.json({ ok: true, expiresIn: 300, demo: true });
 }

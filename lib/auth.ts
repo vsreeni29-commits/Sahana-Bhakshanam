@@ -18,6 +18,20 @@ export function normalizeIndianPhone(input: string) {
   return `+91${local}`;
 }
 
+export function isChefPhone(input: string) {
+  const phone = normalizeIndianPhone(input);
+  if (!phone) return false;
+
+  const configured = [
+    runtimeValue("CHEF_PHONE_E164"),
+    ...(runtimeValue("CHEF_PHONE_E164_LIST") ?? "").split(/[\s,;]+/),
+  ]
+    .map((value) => normalizeIndianPhone(value ?? ""))
+    .filter((value): value is string => Boolean(value));
+
+  return new Set(configured).has(phone);
+}
+
 function bytesToHex(bytes: Uint8Array) {
   return Array.from(bytes).map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
@@ -55,6 +69,7 @@ export async function getSession(request: Request): Promise<AppSession | null> {
     .bind(tokenHash)
     .first<{ userId: string; phone: string; role: "consumer" | "chef"; expiresAt: number }>();
   if (!row || row.expiresAt <= Date.now()) return null;
+  if (row.role === "chef" && !isChefPhone(row.phone)) return null;
   return { userId: row.userId, phone: row.phone, role: row.role };
 }
 

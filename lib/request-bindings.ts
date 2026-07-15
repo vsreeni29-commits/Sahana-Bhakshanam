@@ -3,9 +3,11 @@ import { AsyncLocalStorage } from "node:async_hooks";
 export type RuntimeBindings = {
   DB?: D1Database;
   OTP_DEMO_MODE?: string;
+  OTP_DEMO_CODE?: string;
   OTP_HASH_SECRET?: string;
   SESSION_COOKIE_SECURE?: string;
   CHEF_PHONE_E164?: string;
+  CHEF_PHONE_E164_LIST?: string;
   TWILIO_ACCOUNT_SID?: string;
   TWILIO_AUTH_TOKEN?: string;
   TWILIO_VERIFY_SERVICE_SID?: string;

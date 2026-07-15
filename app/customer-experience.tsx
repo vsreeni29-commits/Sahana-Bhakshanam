@@ -3,7 +3,6 @@
 import {
   ArrowRight,
   Banknote,
-  BellRing,
   CalendarClock,
   Check,
   ChefHat,
@@ -108,7 +107,6 @@ export function CustomerExperience() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
-  const [otpDemoCode, setOtpDemoCode] = useState("");
   const [authError, setAuthError] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [checkoutStage, setCheckoutStage] = useState<CheckoutStage>("bag");
@@ -228,9 +226,8 @@ export function CustomerExperience() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, purpose: "consumer" }),
       });
-      const result = (await response.json()) as { error?: string; demoCode?: string };
+      const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "Could not send OTP.");
-      setOtpDemoCode(result.demoCode ?? "");
       setLoginStep("otp");
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : "Could not send OTP.");
@@ -519,7 +516,6 @@ export function CustomerExperience() {
                 <p className="sent-note">Code sent to +91 {phone.slice(0, 5)} {phone.slice(5)}</p>
                 <label htmlFor="otp">One-time password</label>
                 <input className="otp-input" id="otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otp} onChange={(event) => setOtp(event.target.value.replace(/\D/g, ""))} placeholder="• • • • • •" required />
-                {otpDemoCode && <div className="demo-code"><BellRing size={16} /> Prototype code: <strong>{otpDemoCode}</strong></div>}
                 {authError && <p className="field-error">{authError}</p>}
                 <button className="primary-cta full" type="submit" disabled={otp.length !== 6 || authLoading}>{authLoading ? "Verifying…" : "Verify & continue"} <ArrowRight size={19} /></button>
                 <button className="text-button" type="button" onClick={() => setLoginStep("phone")}>Use a different number</button>

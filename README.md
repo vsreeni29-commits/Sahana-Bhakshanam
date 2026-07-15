@@ -24,7 +24,7 @@ cp .env.example .env
 npm run dev
 ```
 
-The prototype can expose OTP `246810` only when `OTP_DEMO_MODE=true`. Never deploy publicly with demo mode enabled. Configure Twilio Verify and set demo mode to `false` for real SMS OTP.
+Local development can use a private six-digit `OTP_DEMO_CODE` only when `OTP_DEMO_MODE=true`; the code is never returned to the browser. Never enable demo mode on a public deployment. Configure Twilio Verify and set demo mode to `false` for real SMS OTP.
 
 ## Data and migrations
 
@@ -47,6 +47,7 @@ A second repository is justified only if the WhatsApp Business relay later becom
 ## Integration boundaries
 
 - `TWILIO_*` activates real SMS verification.
+- `CHEF_PHONE_E164_LIST` holds the comma-separated chef login allowlist as a hosted secret; real mobile numbers are never committed.
 - `ORDER_RELAY_URL` receives a signed, server-to-server order payload suitable for a WhatsApp Business Cloud API adapter.
 - Personal WhatsApp cannot be silently automated through `wa.me`; the app therefore guarantees immediate delivery to the chef dashboard and treats WhatsApp as a separately tracked relay.
 - No payment gateway exists by design. The server stores only the customer’s selected doorstep method (`cash` or `upi`).

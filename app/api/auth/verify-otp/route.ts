@@ -1,7 +1,6 @@
 import { getRawDb } from "../../../../db";
-import { createSession, hashOtp, normalizeIndianPhone } from "../../../../lib/auth";
+import { createSession, hashOtp, isChefPhone, normalizeIndianPhone } from "../../../../lib/auth";
 import { ensureDatabase } from "../../../../lib/db-bootstrap";
-import { runtimeValue } from "../../../../lib/runtime";
 import { checkTwilioOtp } from "../../../../lib/twilio-verify";
 
 export async function POST(request: Request) {
@@ -30,7 +29,7 @@ export async function POST(request: Request) {
 
   const now = Date.now();
   await getRawDb().prepare(`UPDATE otp_challenges SET used_at = ? WHERE id = ?`).bind(now, challenge.id).run();
-  const role = phone === runtimeValue("CHEF_PHONE_E164") ? "chef" : "consumer";
+  const role = isChefPhone(phone) ? "chef" : "consumer";
   if (purpose === "chef" && role !== "chef") return Response.json({ error: "Chef access denied." }, { status: 403 });
 
   const existing = await getRawDb().prepare(`SELECT id FROM users WHERE phone = ? LIMIT 1`).bind(phone).first<{ id: string }>();

@@ -2,9 +2,11 @@ import { getRuntimeBindings } from "./request-bindings";
 
 type RuntimeKey =
   | "OTP_DEMO_MODE"
+  | "OTP_DEMO_CODE"
   | "OTP_HASH_SECRET"
   | "SESSION_COOKIE_SECURE"
   | "CHEF_PHONE_E164"
+  | "CHEF_PHONE_E164_LIST"
   | "TWILIO_ACCOUNT_SID"
   | "TWILIO_AUTH_TOKEN"
   | "TWILIO_VERIFY_SERVICE_SID"
